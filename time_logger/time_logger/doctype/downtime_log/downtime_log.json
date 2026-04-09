@@ -1,0 +1,87 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-07 10:25:58.215977",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "loss_code",
+  "loss_description",
+  "loss_type",
+  "operator",
+  "date",
+  "shift",
+  "downtime",
+  "comments"
+ ],
+ "fields": [
+  {
+   "fieldname": "operator",
+   "fieldtype": "Data",
+   "label": "Operator"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Data",
+   "label": "Shift"
+  },
+  {
+   "fieldname": "loss_code",
+   "fieldtype": "Data",
+   "label": "Loss Code"
+  },
+  {
+   "fieldname": "loss_description",
+   "fieldtype": "Data",
+   "label": "Loss Description"
+  },
+  {
+   "fieldname": "loss_type",
+   "fieldtype": "Data",
+   "label": "Loss Type",
+   "options": "Work Centre"
+  },
+  {
+   "fieldname": "downtime",
+   "fieldtype": "Int",
+   "label": "Downtime"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Text",
+   "label": "Comments"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-09 12:47:35.902748",
+ "modified_by": "Administrator",
+ "module": "Time Logger",
+ "name": "Downtime Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
