@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Production Order Confirmation & Time Booking</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   DARK THEME
+══════════════════════════════════════════ */
+:root,[data-theme="dark"]{
+  --bg:#0f1117; --bg-surface:#13161f; --bg-card:#181c27;
+  --bg-input:#1e2233; --bg-if:#232840;
+  --bg-hdr:#0b0d14; --bg-sec-hdr:#111523;
+  --border:#272d40; --bhi:#343c55;
+  --tp:#dde0ea; --ts:#9aa0bc; --tm:#6e7592;
+  --blue:#4a7cf8; --blue-d:#16255c;
+  --teal:#2dd4a0; --teal-d:#0a3526;
+  --amber:#f5a623; --amber-d:#3e2900; --amber-b:#8a4e00;
+  --red:#f05252; --red-d:#3a1010;
+  --green:#4ade80; --green-d:#0b2e18; --green-b:#1a5c30;
+  --orange:#fb923c; --purple:#a78bfa;
+  --hi-bg:#1e2640; --hi-brd:#343c55; --hi-lbl:#6e7592; --hi-text:#dde0ea;
+  --cv:url("data:image/svg+xml,%3Csvg width='9' height='5' viewBox='0 0 9 5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%236e7592' stroke-width='1.4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+}
+/* ══════════════════════════════════════════
+   LIGHT THEME
+══════════════════════════════════════════ */
+[data-theme="light"]{
+  --bg:#eef0f6; --bg-surface:#e4e7f0; --bg-card:#ffffff;
+  --bg-input:#f4f5fa; --bg-if:#eceef8;
+  --bg-hdr:#1a2035; --bg-sec-hdr:#f0f2f8;
+  --border:#ced3e8; --bhi:#adb5d0;
+  --tp:#1a2035; --ts:#4a5580; --tm:#7080a8;
+  --blue:#2563eb; --blue-d:#dbeafe;
+  --teal:#0d9668; --teal-d:#d1fae5;
+  --amber:#b45309; --amber-d:#fef3c7; --amber-b:#d97706;
+  --red:#dc2626; --red-d:#fee2e2;
+  --green:#16a34a; --green-d:#dcfce7; --green-b:#86efac;
+  --orange:#ea580c; --purple:#7c3aed;
+  --hi-bg:#1e2640; --hi-brd:#343c55; --hi-lbl:#8890a8; --hi-text:#dde0ea;
+  --cv:url("data:image/svg+xml,%3Csvg width='9' height='5' viewBox='0 0 9 5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%237080a8' stroke-width='1.4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow:hidden}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tp);font-size:15px;display:flex;flex-direction:column;transition:background .2s,color .2s}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg-hdr);border-bottom:1px solid #1e2640;height:auto;min-height:60px;flex-shrink:0;display:flex;align-items:center;padding:8px 12px;gap:8px;transition:background .2s;flex-wrap:wrap}
+.logo{width:32px;height:32px;border-radius:5px;background:var(--blue);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.hdr-title{font-size:14px;font-weight:600;color:var(--hi-text);white-space:nowrap;flex-shrink:0}
+.hdr-sep{width:1px;height:20px;background:#2a3050;flex-shrink:0}
+.hf{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.hf-lbl{font-size:10px;color:var(--hi-lbl);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;display:none}
+.hf-inp,.hf-sel{background:var(--hi-bg);border:1px solid var(--hi-brd);border-radius:4px;color:var(--blue);font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 8px;outline:none;transition:border-color .15s}
+.hf-inp:hover,.hf-sel:hover,.hf-inp:focus,.hf-sel:focus{border-color:var(--blue)}
+.hf-inp{font-family:'IBM Plex Mono',monospace;width:110px}
+.hf-sel{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:20px;background-image:url("data:image/svg+xml,%3Csvg width='9' height='5' viewBox='0 0 9 5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%236e7592' stroke-width='1.4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
+.hf-shift{width:50px}.hf-op{min-width:150px}
+.hf-search-wrap{position:relative;display:flex;align-items:center;flex-shrink:0}
+.hf-search-icon{position:absolute;left:8px;color:var(--hi-lbl);display:flex;pointer-events:none;z-index:1;font-size:10px}
+.hdr-r{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0}
+.wc-badge{display:flex;align-items:center;gap:6px;border:1px solid var(--hi-brd);border-radius:4px;padding:4px 10px;background:var(--hi-bg);font-size:10px}
+.wc-lbl{font-size:9px;color:var(--hi-lbl);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;display:none}
+.wc-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--blue)}
+.theme-btn{width:30px;height:30px;border:1px solid var(--hi-brd);background:var(--hi-bg);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9aa0bc;transition:border-color .15s,color .15s;flex-shrink:0;font-size:12px}
+.theme-btn:hover{border-color:var(--blue);color:var(--blue)}
+.icon-sun{display:none}.icon-moon{display:block}
+[data-theme="light"] .icon-sun{display:block}
+[data-theme="light"] .icon-moon{display:none}
+.logout-btn{width:30px;height:30px;border:1px solid var(--hi-brd);background:transparent;border-radius:4px;cursor:pointer;color:#9aa0bc;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-size:11px}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* ── SHIFT SUMMARY ROW ── */
+.sum-row{background:var(--bg-surface);border-bottom:1px solid var(--border);padding:6px 10px;flex-shrink:0;display:flex;align-items:center;height:auto;gap:8px;transition:background .2s;flex-wrap:wrap;min-height:50px}
+.sum-lbl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;flex-shrink:0}
+.progress-track{flex:1;height:24px;background:var(--bg-input);border-radius:3px;overflow:hidden;position:relative;border:1px solid var(--border);min-width:100px}
+.ps{position:absolute;height:100%;top:0;transition:width .4s,left .4s}
+.ps-prod{background:var(--teal);left:0}
+.ps-setup{background:var(--amber)}
+.ps-down{background:var(--red)}
+.ps-ot{background:var(--purple)}
+.legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%;font-size:11px}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:500;color:var(--ts)}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── BODY ── */
+.body-wrap{display:grid;grid-template-columns:1fr;flex:1;overflow:hidden;min-height:0}
+.left{padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--border)}
+.left::-webkit-scrollbar{width:4px}.left::-webkit-scrollbar-thumb{background:var(--bhi);border-radius:4px}
+
+/* ── SECTION CARDS ── */
+.sec{background:var(--bg-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:background .2s;font-size:13px}
+.sec-hdr{background:var(--bg-sec-hdr);padding:6px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ts)}
+.view-all{font-size:10px;font-weight:600;color:var(--blue);cursor:pointer;text-decoration:none;border:1px solid var(--blue);border-radius:2px;padding:2px 6px;letter-spacing:.02em;white-space:nowrap;opacity:.85;transition:opacity .15s}
+.view-all:hover{opacity:1;text-decoration:none}
+.sec-body{padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+
+/* ── FORM ── */
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:3px;flex:1;min-width:150px}
+.fl{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.03em}
+.fi{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;color:var(--tp);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;outline:none;transition:border-color .15s,background .15s;width:100%}
+.fi:hover{border-color:var(--bhi)}.fi:focus{border-color:var(--blue);background:var(--bg-if)}
+.fi.ro{color:var(--ts);cursor:default}.fi.ro:focus{border-color:var(--border);background:var(--bg-input)}
+.fi.bl{color:var(--blue)}
+.fi-sel{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:20px;background-image:var(--cv);background-repeat:no-repeat;background-position:right 6px center}
+.fi-wrap{position:relative}.fi-wrap .fi-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--tm);pointer-events:none;display:flex;font-size:10px}
+.fi-wrap .fi{padding-left:26px}
+
+/* ── QTY & TIME TABLE ── */
+.qt-row{display:grid;grid-template-columns:auto 1fr auto 1fr auto 1fr;align-items:stretch;gap:4px}
+.qt-lbl{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.02em;padding-right:4px;display:flex;align-items:center;line-height:1.2;min-width:80px}
+.qt-lbl.bal{font-weight:700;color:var(--amber)}
+.sbox{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;padding:6px 8px;display:flex;align-items:center;transition:background .2s,border-color .2s;flex:1;min-width:60px}
+.sval{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:500;color:var(--tp);line-height:1}
+.sval.muted{color:var(--ts);font-size:12px}
+.sbox.booked{background:var(--green-d);border-color:var(--green-b)}.sbox.booked .sval{color:var(--green)}
+.sbox.balance{background:var(--amber-d);border-color:var(--amber-b)}.sbox.balance .sval{color:var(--amber)}
+
+/* ── BOOKING BAR ── */
+.booking-bar{background:var(--bg-sec-hdr);border:1px solid var(--bhi);border-radius:4px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:2px;overflow:hidden;flex-shrink:0;padding:2px}
+.bb-cell{padding:8px 10px;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;gap:4px;min-width:80px}
+.bb-cell:last-child{border-right:none;padding:0}
+.bb-lbl{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.03em;line-height:1;white-space:nowrap}
+.bb-inp{background:var(--bg-input);border:1px solid var(--blue);border-radius:3px;color:var(--blue);font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;padding:4px 6px;outline:none;width:100%;text-align:center;transition:background .15s}
+.bb-inp:focus{background:var(--bg-if)}
+.add-btn{background:var(--blue);border:none;cursor:pointer;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:700;padding:4px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:filter .15s,transform .1s;white-space:nowrap;height:100%;min-width:70px}
+.add-btn:hover{filter:brightness(1.12)}.add-btn:active{transform:scale(.97)}
+.add-btn svg{width:12px;height:12px}
+
+/* ── RIGHT PANEL ── */
+.right{padding:8px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;background:var(--bg-surface);transition:background .2s;display:none}
+.right::-webkit-scrollbar{width:4px}.right::-webkit-scrollbar-thumb{background:var(--bhi);border-radius:4px}
+.breakdown-btn{background:var(--red-d);border:1px solid var(--red);border-radius:3px;color:var(--red);font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:700;padding:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:filter .15s;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0}
+.breakdown-btn:hover{filter:brightness(1.15)}
+.breakdown-btn svg{width:11px;height:11px}
+.r-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ts);display:flex;align-items:center;justify-content:space-between}
+.dt-section{display:flex;flex-direction:column;gap:5px;font-size:12px}
+.dt-box{background:var(--red-d);border:1px solid var(--red);border-radius:3px;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 10px}
+.dt-val{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--red);line-height:1;background:transparent;border:none;outline:none;width:60px;text-align:center;-moz-appearance:textfield}
+.dt-val::-webkit-outer-spin-button,.dt-val::-webkit-inner-spin-button{-webkit-appearance:none}
+.dt-sub{font-size:10px;color:var(--red);opacity:.65;text-transform:uppercase;letter-spacing:.04em}
+
+.reason-wrap,.reason-single-wrap{position:relative;display:flex;align-items:center}
+.reason-icon,.reason-single-icon{position:absolute;left:8px;color:var(--tm);display:flex;pointer-events:none;z-index:1;font-size:10px}
+.reason-sel,.reason-single-sel{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;color:var(--tp);font-family:'IBM Plex Sans',sans-serif;font-size:12px;padding:6px 20px 6px 26px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:var(--cv);background-repeat:no-repeat;background-position:right 6px center;transition:border-color .15s}
+.reason-sel:focus,.reason-single-sel:focus{border-color:var(--blue);background-color:var(--bg-if)}
+.rt-badge{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;padding:6px 8px;font-size:12px;color:var(--ts);font-family:'IBM Plex Mono',monospace}
+.add-dt-btn{background:var(--orange);border:none;border-radius:3px;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:700;padding:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:filter .15s,transform .1s;letter-spacing:.04em;flex-shrink:0}
+.add-dt-btn:hover{filter:brightness(1.1)}.add-dt-btn:active{transform:scale(.97)}
+.add-dt-btn svg{width:11px;height:11px}
+.divider{border:none;border-top:1px solid var(--border)}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-top:6px;padding-bottom:6px}
+.save-btn,.submit-btn{background:var(--bg-card);border:1px solid var(--bhi);border-radius:3px;color:var(--ts);font-family:'IBM Plex Sans',sans-serif;font-size:10px;font-weight:700;padding:8px;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.05em}
+.save-btn:hover{border-color:var(--ts);color:var(--tp)}
+.submit-btn{background:var(--teal-d);border:1px solid var(--teal);color:var(--teal)}
+.submit-btn:hover{filter:brightness(1.1)}.submit-btn:active{transform:scale(.97)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:16px;right:12px;background:var(--teal-d);border:1px solid var(--teal);border-radius:3px;color:var(--teal);padding:8px 12px;font-size:11px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;transform:translateY(6px);z-index:9999;max-width:200px}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.warn{background:var(--amber-d);border-color:var(--amber);color:var(--amber)}
+#toast.err{background:var(--red-d);border-color:var(--red);color:var(--red)}
+.powered{position:fixed;bottom:2px;right:8px;font-size:9px;color:#6b7194;letter-spacing:.02em;pointer-events:none;user-select:none}
+.powered strong{font-weight:600;letter-spacing:.04em}
+
+/* Status Badge Styles */
+.po-status-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:2px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border:1px solid;white-space:nowrap}
+.po-status-badge.open{background:var(--green-d);color:var(--green);border-color:var(--green)}
+.po-status-badge.in-progress{background:var(--amber-d);color:var(--amber);border-color:var(--amber)}
+.po-status-badge.closed{background:var(--bg-input);color:var(--tm);border-color:var(--bhi)}
+.user-booking-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+.user-booking-row .fg:nth-child(3){min-width:fit-content;display:flex;flex-direction:column;justify-content:flex-end}
+
+/* ── MEDIA QUERIES ── */
+/* Default: Mobile-first */
+@media (min-width:640px) {
+  .body-wrap{grid-template-columns:1fr 280px}
+  .right{display:flex}
+  .booking-bar{grid-template-columns:1fr 1fr 1fr auto}
+  .hf-lbl,.wc-lbl{display:inline}
+}
+
+@media (min-width:1024px) {
+  .hdr{padding:10px 16px;gap:14px}
+  .logo{width:34px;height:34px;font-size:14px}
+  .hdr-title{font-size:15px}
+  .hf-inp{width:124px}
+  .hf-op{min-width:200px}
+  .hf-sel{padding-right:22px}
+  .wc-badge{padding:4px 12px}
+  .wc-val{font-size:17px}
+  .theme-btn,.logout-btn{width:34px;height:34px;font-size:14px}
+  
+  .sum-row{padding:8px 16px;gap:14px;min-height:60px}
+  .sum-lbl{font-size:12px}
+  .progress-track{height:32px}
+  .legend{font-size:13px}
+  .li{font-size:13px}
+  .ld{width:9px;height:9px}
+  
+  .left,.right{padding:12px 14px;gap:9px}
+  .sec{font-size:15px}
+  .sec-hdr{padding:7px 14px}
+  .sec-title{font-size:12px}
+  .sec-body{padding:10px 14px;gap:9px}
+  
+  .fl{font-size:11px}
+  .fi{font-size:14px;padding:7px 11px}
+  .fi-wrap .fi{padding-left:30px}
+  
+  .qt-row{grid-template-columns:120px 1fr 120px 1fr 120px 1fr;gap:auto}
+  .qt-lbl{font-size:11px;min-width:auto}
+  .sbox{padding:8px 11px}
+  .sval{font-size:19px}
+  .sval.muted{font-size:15px}
+  
+  .booking-bar{grid-template-columns:1fr 1fr 1fr auto;padding:auto}
+  .bb-cell{padding:10px 14px;min-width:auto;border-right:1px solid var(--border)}
+  .bb-lbl{font-size:11px}
+  .bb-inp{font-size:26px;padding:7px 11px}
+  .add-btn{font-size:13px;padding:0 20px;min-width:104px}
+  .add-btn svg{width:14px;height:14px}
+  
+  .breakdown-btn{font-size:13px;padding:10px}
+  .breakdown-btn svg{width:13px;height:13px}
+  .r-lbl{font-size:12px}
+  .dt-section{font-size:13px}
+  .dt-box{padding:9px 14px}
+  .dt-val{font-size:32px;width:76px}
+  .dt-sub{font-size:12px}
+  .reason-sel,.reason-single-sel{font-size:14px;padding:7px 24px 7px 28px}
+  .reason-icon,.reason-single-icon{font-size:11px}
+  .rt-badge{font-size:14px;padding:7px 11px}
+  .add-dt-btn{font-size:13px;padding:10px}
+  .add-dt-btn svg{width:13px;height:13px}
+  .save-btn,.submit-btn{font-size:13px;padding:12px}
+  #toast{bottom:22px;right:18px;font-size:13px;max-width:none}
+  .powered{bottom:7px;right:13px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo">KSB</div>
+  <span class="hdr-title">Production Order Confirmation &amp; Time Booking</span>
+  <div class="hdr-sep"></div>
+  <div class="hf">
+    <span class="hf-lbl">Date</span>
+    <input type="date" class="hf-inp" id="inp-date" value="2026-04-06">
+  </div>
+  <div class="hf">
+    <span class="hf-lbl">Shift</span>
+    <select class="hf-sel hf-shift" id="inp-shift">
+        <option value="" disabled selected></option>
+    </select>
+  </div>
+  <div class="hf">
+    <span class="hf-lbl">Operator Ticket No.</span>
+    <div class="hf-search-wrap">
+      <span class="hf-search-icon"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/></svg></span>
+      <select class="hf-sel hf-op" id="inp-operator">
+        <option value="" disabled selected>— Select Date &amp; Shift first —</option>
+      </select>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div class="wc-badge">
+      <span class="wc-lbl">Work Center No.</span>
+      <span class="wc-val">—</span>
+    </div>
+    <button class="theme-btn" id="theme-toggle" title="Toggle light/dark theme">
+      <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 0010 9.79z"/></svg>
+      <svg class="icon-sun"  width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <button class="logout-btn" title="Logout">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 8H2M6 5l-3 3 3 3M11 4h2a1 1 0 011 1v6a1 1 0 01-1 1h-2"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="sum-row">
+  <span class="sum-lbl">Shift Booking Summary (min.)</span>
+  <div class="progress-track">
+    <div class="ps ps-prod"></div>
+    <div class="ps ps-setup"></div>
+    <div class="ps ps-down"></div>
+    <div class="ps ps-ot"></div>
+  </div>
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:var(--teal)"></div>Production: 140</div>
+    <div class="li"><div class="ld" style="background:var(--amber)"></div>Setup: 60</div>
+    <div class="li"><div class="ld" style="background:var(--red)"></div>Downtime: 5</div>
+    <div class="li"><div class="ld" style="background:#666"></div>Remaining: 275</div>
+    <div class="li"><div class="ld" style="background:var(--purple)"></div>Overtime: 0</div>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <div class="left">
+
+    <div class="sec">
+      <div class="sec-hdr">
+        <span class="sec-title">User Booking</span>
+        <a class="view-all" id="link-view-all" href="user-bookings">📋</a>
+      </div>
+      <div class="sec-body">
+        <div class="user-booking-row">
+          <div class="fg">
+            <span class="fl">Confirmation No.</span>
+            <div class="fi-wrap">
+              <span class="fi-icon"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/></svg></span>
+              <select class="fi fi-sel bl" id="sel-confirmation">
+                <option value="" disabled selected>— Loading… —</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg">
+            <span class="fl">Production Order No.</span>
+            <input class="fi ro" id="ro-prod-order" value="" readonly>
+          </div>
+          <div class="fg">
+            <span class="fl">Status</span>
+            <span class="po-status-badge in-progress" id="po-status">In Progress</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-hdr"><span class="sec-title">Order Details</span></div>
+      <div class="sec-body">
+        <div class="row">
+          <div class="fg"><span class="fl">Order Work Center</span><input class="fi ro" id="ro-work-center" value="" readonly></div>
+          <div class="fg"><span class="fl">Alternate Work Center</span><input class="fi ro" id="ro-alt-work-center" value="" readonly></div>
+          <div class="fg"><span class="fl">Plant</span><input class="fi ro" id="ro-plant" value="" readonly></div>
+        </div>
+        <div class="row">
+          <div class="fg"><span class="fl">Operation (No. – Description)</span><input class="fi ro" id="ro-operation" value="" readonly></div>
+        </div>
+        <div class="row">
+          <div class="fg"><span class="fl">Material (Code – Description)</span><input class="fi ro" id="ro-material" value="" readonly></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-hdr"><span class="sec-title">Quantity &amp; Time</span></div>
+      <div class="sec-body">
+        <div style="display:grid;grid-template-columns:110px 1fr 110px 1fr 110px 1fr;">
+          <span></span><span class="fl" style="text-align:center">QTY</span>
+          <span></span><span class="fl" style="text-align:center">OPERATION TIME</span>
+          <span></span><span class="fl" style="text-align:center">SETUP TIME</span>
+        </div>
+        <div class="qt-row">
+          <span class="qt-lbl">Operation Qty</span>
+          <div class="sbox" style="margin-right:8px"><span class="sval" id="std-op-qty">—</span></div>
+          <span class="qt-lbl">Std. Op. Time</span>
+          <div class="sbox" style="margin-right:8px"><span class="sval muted" id="std-op-time">—</span></div>
+          <span class="qt-lbl">Std. Setup Time</span>
+          <div class="sbox"><span class="sval muted" id="std-setup-time">—</span></div>
+        </div>
+        <div class="qt-row">
+          <span class="qt-lbl">Booked Qty</span>
+          <div class="sbox booked" style="margin-right:8px"><span class="sval" id="booked-op-qty">0</span></div>
+          <span class="qt-lbl">Booked Op. Time</span>
+          <div class="sbox booked" style="margin-right:8px"><span class="sval" id="booked-op-time">0</span></div>
+          <span class="qt-lbl">Booked Setup Time</span>
+          <div class="sbox booked"><span class="sval" id="booked-setup-time">0</span></div>
+        </div>
+        <div class="qt-row">
+          <span class="qt-lbl bal">Balance Op. Qty</span>
+          <div class="sbox balance" style="margin-right:8px"><span class="sval" id="bal-op-qty">—</span></div>
+          <span class="qt-lbl bal">Balance Op. Time</span>
+          <div class="sbox balance" style="margin-right:8px"><span class="sval" id="bal-op-time">—</span></div>
+          <span class="qt-lbl bal">Balance Setup Time</span>
+          <div class="sbox balance"><span class="sval" id="bal-setup-time">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-bar">
+      <div class="bb-cell">
+        <span class="bb-lbl">Operation Qty (Nos.)</span>
+        <input type="number" class="bb-inp" id="bq" value="1.2" step="0.1" min="0">
+      </div>
+      <div class="bb-cell">
+        <span class="bb-lbl">Actual Operation Time (min.)</span>
+        <input type="number" class="bb-inp" id="bt" value="60" step="1" min="0">
+      </div>
+      <div class="bb-cell">
+        <span class="bb-lbl">Actual Setup Time (min.)</span>
+        <input type="number" class="bb-inp" id="bs" value="7" step="1" min="0">
+      </div>
+      <button class="add-btn" onclick="addBooking()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>
+        Add Booking
+      </button>
+    </div>
+
+  </div><div class="right">
+
+    <button class="breakdown-btn" onclick="raiseBreakdown()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 1v5l3 2"/><circle cx="8" cy="8" r="7"/></svg>
+      Raise Breakdown
+    </button>
+
+    <div class="r-lbl">
+      <span>M/C Downtime</span>
+      <a class="view-all" id="link-view-all-dt" href="mc-downtime">[LIST DOWNTIMES]</a>
+    </div>
+
+    <div class="dt-section">
+      <div class="fg">
+        <span class="fl">Downtime (min.)</span>
+        <div class="dt-box">
+          <input type="number" class="dt-val" id="dt-display" value="60" min="0" step="1">
+          <div class="dt-sub">minutes</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="fg">
+        <span class="fl">Reason Code</span>
+        <div class="reason-wrap">
+          <span class="reason-icon"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/></svg></span>
+          <select class="reason-sel" id="rcode" onchange="syncReason(this.value)">
+            <option>560</option>
+            <option>561</option>
+            <option>562</option>
+            <option>563</option>
+            <option>564</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fg">
+        <span class="fl">Reason</span>
+        <div class="reason-single-wrap">
+          <span class="reason-single-icon"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/></svg></span>
+          <select class="reason-single-sel" id="rdesc" onchange="syncReasonDesc(this.value)">
+            <option>Addl. Operation Machining</option>
+            <option>Preventive Maintenance</option>
+            <option>Tooling Change</option>
+            <option>Power Failure</option>
+            <option>Material Shortage</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fg">
+        <span class="fl">Reason Type</span>
+        <div class="rt-badge" id="rt-badge">Additional Hrs.</div>
+      </div>
+
+      <div class="fg">
+        <span class="fl">Comments</span>
+        <textarea class="fi" id="dt-comments" rows="3" placeholder="Add comments…" style="resize:vertical;font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.5;min-height:68px;"></textarea>
+      </div>
+    </div>
+
+    <button class="add-dt-btn" onclick="addDowntime()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>
+      Add Downtime
+    </button>
+
+    <div class="action-row">
+      <button class="save-btn" onclick="showToast('Draft saved.','ok')">Save</button>
+      <button class="submit-btn" onclick="handleSubmit()">Submit</button>
+    </div>
+
+  </div>
+
+<div id="toast"></div>
+<div class="powered">powered by <strong>ITHENA.</strong></div>
+
+<script src="script.js"></script>
+</body>
+</html>
